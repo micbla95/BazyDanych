@@ -1,0 +1,188 @@
+1. Tworzenie bazy :
+
+- Create Database s277029;
+
+2. Dodawanie schematu :
+
+- Create schema Firma;
+
+3. Tworzenie roli :
+
+- Create role ksiegowosc;
+- Grant select on all tables in schema Firma to ksiegowosc;
+
+4.Tworzenie tabel, dodanie kluczy itd :
+
+- create table Firma.pracownicys(id_pracownika int not null, imie varchar(50), nazwisko varchar(50), adres varchar(50), telefon bigint);
+- create table Firma.godziny(id_godziny int not null, data date, liczba_godzin int, id_pracownika int not null);
+- create table Firma.pensja_stanowisko(id_pensji int not null, stanowisko varchar(50), kwota double precision);
+- create table Firma.premia(id_premii int not null, rodzaj varchar(50), kwota double precision);
+- create table Firma.wynagrodzenie(id_wynagrodzenia int not null, data date, id_pracownika int not null, id_godziny int not null, id_pensji int not null, id_premii int not null);
+
+- alter table Firma.pracownicy add primary key(id_pracownika)
+- alter table Firma.godziny add primary key(id_godziny);
+- alter table Firma.pensja_stanowisko add primary key(id_pensji);
+- alter table Firma.premia add primary key(id_premii);
+- alter table Firma.wynagrodzenie add primary key(id_wynagrodzenia);
+
+- alter table Firma.godziny add foreign key (id_pracownika) REFERENCES firma.pracownicy(id_pracownika);
+
+- alter table firma.wynagrodzenie 
+- add foreign key (id_pracownika) references Firma.pracownicy(id_pracownika),
+- add foreign key (id_godziny) references Firma.godziny(id_godziny),
+- add foreign key (id_pensji) references Firma.pensja_stanowisko(id_pensji),
+- add foreign key (id_premii) references Firma.premia(id_premii);
+
+- create index index_data on Firma.godziny using btree (data);
+
+
+- comment on table Firma.pracownicy IS 'tabela z pracownikami firmy';
+- comment on table Firma.godziny IS 'tabela z godzinami pracy';
+- comment on table Firma.pensja_stanowisko IS 'informacjie o pensji i stanowisku';
+- comment on table Firma.premia IS 'tabela z informacja o premiach';
+- comment on table Firma.wynagrodzenie IS 'infomracje o wynagrodzeniach';
+
+- alter table Firma.godziny 
+add foreign key(id_pracownika) references Firma.pracownicy(id_pracownika) on delete no action;
+- alter table Firma.wynagrodzenie 
+add foreign key(id_pracownika) references Firma.pracownicy(id_pracownika) on delete no action,
+add foreign key(id_godziny) references Firma.godziny(id_godziny) on delete no action,
+add foreign key(id_pensji) references Firma.pensja_stanowisko(id_pensji) on delete no action,
+add foreign key(id_premii) references Firma.premia(id_premii) on delete no action;
+
+
+5.Wypełnianie tabel
+
+
+- insert into Firma.pracownicy values
+(1, 'Jan', 'Kowalski', 'Krakow', 123456789),
+(2, 'Janusz', 'Nowak', 'Krakow', 111111111),
+(3, 'Tomasz', 'Malinowski', 'Wroclaw', 222222222),
+(4, 'Jakub', 'Banas', 'Warszawa', 333333333),
+(5, 'Krzysztof', 'Kononowicz', 'Bialystok', 444444444),
+(6, 'Wojciech', 'Suchodolski', 'Bialystok', 555555555),
+(7, 'Marcel', 'Kowal', 'Poznan', 666666666),
+(8, 'Wojciech', 'Dudek', 'Krakow', 777777777),
+(9, 'Adam', 'Małysz', 'Katowice', 888888888),
+(10, 'Michal', 'Pol', 'Warszawa', 999999999);
+
+- insert into Firma.godziny values
+(1, '2020-06-03', 8, 1),
+(2, '2020-07-13', 9, 2),
+(3, '2020-02-22', 7, 3),
+(4, '2020-04-23', 9, 4),
+(5, '2020-12-24', 7, 5),
+(6, '2020-10-25', 6, 6),
+(7, '2020-07-20', 10, 7),
+(8, '2020-05-05', 5, 8),
+(9, '2020-05-07', 8, 9),
+(10, '2019-05-04', 8, 10);
+
+
+- insert into Firma.premia values
+(1,'brak', 12),
+(2, 'okazjonalna',500),
+(3, 'miesieczna', 200),
+(4, 'delegacja', 300);
+
+- insert into Firma.pensja_stanowisko values
+(1,'szef', 12000),
+(2, 'brygadzista',3000),
+(3, 'sekretarka', 3000),
+(4, 'ksiegowa', 5000);
+
+- insert into Firma.wynagrodzenie values
+(1,'2020-05-03',1,1,1,1),
+(2,'2020-12-15',2,2,2,2),
+(3,'2020-08-07',3,3,3,3),
+(4,'2020-06-07',4,4,4,1),
+(5,'2020-04-07',5,5,2,4),
+(6,'2020-07-07',6,6,3,3),
+(7,'2020-03-17',7,7,3,3),
+(8,'2020-04-27',8,8,4,1),
+(9,'2020-09-27',9,9,2,1),
+(10,'2020-04-17',10,10,2,1);
+
+- alter table Firma.godziny add miesiac varchar(20), add tydzien int;
+- update Firma.godziny set miesiac = (select date_part('month', data)), tydzien=(select date_part('week', data));
+- alter table Firma.wynagrodzenie alter column data type character varying(50);
+
+
+6. Zapytania : 
+
+- select id_pracownika, nazwisko from Firma.pracownicy;
+
+- select id_pracownika from Firma.wynagrodzenie join Firma.pensja_stanowisko on wynagrodzenie.id_pensji = pensja_stanowisko.id_pensji where kwota > 1000;
+
+- select id_pracownika from Firma.wynagrodzenie  join Firma.pensja_stanowisko on wynagrodzenie.id_pensji = pensja_stanowisko.id_pensji  join Firma.premia on wynagrodzenie.id_premii = premia.id_premii
+where pensja_stanowisko.kwota > 2000 and rodzaj like 'Brak';
+
+- select * from Firma.pracownicy where imie like 'J%';
+
+- select * from Firma.pracownicy where nazwisko like '%n%' and imie like '%a';
+
+- select x.imie, y.nazwisko, y.liczba_godzin - 160 AS nadgodziny from Firma.pracownicy x join Firma.godziny y on x.id_pracownika = y.id_pracownika;
+
+
+- select x.imie, x.nazwisko, z.kwota from Firma.pracownicy x join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika join Firma.pensja_stanowisko z on b.id_pensji = z.id_pensji
+where x.kwota between 1500 and 3000;
+
+
+- select x.imie, x.nazwisko from Firma.pracownicy x join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika
+join Firma.godziny z on y.id_godziny = z.id_godziny join Firma.premia a on y.id_premii = a.id_premii where a.rodzaj like 'brak' and z.liczba_godzin > 160;
+
+
+7. Grupowanie itd : 
+
+- select x.imie, x.nazwisko, z.kwota from Firma.pracownicy x
+join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika join Firma.pensja_stanowisko z on y.id_pensji = z.id_pensji order by z.kwota asc;
+
+
+ - select x.imie, x.nazwisko, z.kwota, a.kwota from Firma.pracownicy x join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika join Firma.pensja_stanowisko z on y.id_pensji = z.id_pensji
+join Firma.premia x on y.id_premii = a.id_premii order by z.kwota asc, a.kwota sesc;
+
+
+- select y.stanowisko, count(x.id_pracownika) as ilosc from Firma.wynagrodzenie x join Firma.pensja_stanowisko y on x.id_pensji = y.id_pensji group by y.stanowisko;
+
+
+
+ - select  min(y.kwota + z.kwota) as min, avg(y.kwota + z.kwota) as sred, 
+ max(y.kwota + z.kwota) as max from Firma.wynagrodzenie x join Firma.pensja_stanowisko y on x.id_pensji = y.id_pensji
+join Firma.premia z on x.id_premii = z.id_premii where y.stanowisko like 'pracownik';
+
+
+
+ - select sum(y.kwota + z.kwota) as suma_wynagro from Firma.wynagrodzenie x join Firma.pensja_stanowisko y on x.id_pensji = y.id_pensji join Firma.premia z on x.id_premii = z.id_premii;
+
+
+ - select y.stanowisko, sum(y.kwota + z.kwota) as suma_wynagro from Firma.wynagrodzenie x
+join Firma.pensja_stanowisko y on x.id_pensji = y.id_pensji join Firma.premia z on x.id_premii = z.id_premii group by y.stanowisko;
+
+
+
+- select y.stanowisko, count(z.kwota) filter (where z.kwota > 0) as liczba_premii from Firma.wynagrodzenie x
+join firma.pensja_stanowisko y on x.id_pensji = y.id_pensji join Firma.premia z on x.id_premii = z.id_premii group by y.stanowisko;
+
+
+
+- delete from Firma.pracownicy where id_pracownika in ( select x.id_pracownika from Firma.pracownicy x
+join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika join Firma.pensja_stanowisko z on y.id_pensji = z.id_pensji where z.kwota < 1200 );
+
+
+8. Modyikacja/ wyswietlanie : 
+
+ - alter table Firma.pracownicy alter column telefon type character varying(50);
+
+- update Firma.pracownicy set telefon = format('(+48)%s', telefon);
+
+ - select upper(imie), upper(nazwisko) from Firma.pracownicy where length(nazwisko) = (select max(length(nazwisko)) from Firma.pracownicy);
+
+-  select md5(x.imie) as imie, md5(x.nazwisko) as nazwisko, md5(cast(kwota as varchar)) as pensja from Firma.pracownicy x 
+join Firma.wynagrodzenie y on x.id_pracownika = y.id_pracownika join Firma.pensja_stanowisko z on y.id_pensji = z.id_pensji;
+
+
+
+
+
+
+
