@@ -1,0 +1,19 @@
+4. 
+create table tableB as select popp.* from popp, rivers where popp.f_codedesc like 'Building' group popp.gid having min(ST_Distance(rivers.geom, popp.geom)) < 100000;
+
+5.
+create table  airportsNew(gid serial, name varchar, geom geometry, elev numeric); 
+insert into airportsNew (name, geom, elev) select name, geom, elev from airports;
+
+a)
+select airportsNew.*, ST_Y(geom) as tmp from airportsNew order by tmp desc limit 1;
+select airportsNew.*, ST_Y(geom) as tmp from airportsNew order by tmp limit 1;
+
+6.
+select ST_Area(ST_Buffer(ST_ShortestLine((select geom from lakes where names like 'Iliamna Lake'),(select geom from airports where name like 'AMBLER')), 1000));
+
+
+7.
+
+select vegdesc, sum(area_km2) from (select vegdesc, trees.area_km2 from trees join tundra on trees.geom = tundra.geom) as treesfromTund group by vegdesc;
+select vegdesc, sum(area_km2) from (select vegdesc, trees.area_km2 from trees join swamp on trees.geom = swamp.geom) AS treesfromSwamp group by vegdesc;
