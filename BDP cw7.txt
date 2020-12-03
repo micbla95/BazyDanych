@@ -1,0 +1,16 @@
+create database cw_7;
+
+create extension postgis_raster;
+
+
+----ładowanie rastrów---------
+
+raster2pgsql -s 3763 -N -32767 -t 100x100 -I -C -M -d srtm_1arc_v3.tif rasters.dem
+
+raster2pgsql -s 3763 -N -32767 -t 100x100 -I -C -M -d srtm_1arc_v3.tif rasters.dem
+
+raster2pgsql -s 3763 -N -32767 -t 128x128 -I -C -M -d Landsat8_L1TP_RGBN.tif rasters.landsat8
+
+---- zmaina nazwy -------------
+
+alter schema_name rename to blasiak;
